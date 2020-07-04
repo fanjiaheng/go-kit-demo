@@ -7,10 +7,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+
+	kit_svc "03-ratelimit-demo/service"
 
 	"github.com/go-kit/kit/log"
-
-	kit_svc "02-log-demo/service"
+	_ "github.com/juju/ratelimit"
+	"golang.org/x/time/rate"
 )
 
 func main() {
@@ -32,6 +35,18 @@ func main() {
 	svc = kit_svc.LoggingMiddleware(logger)(svc)
 
 	endpoint := kit_svc.MakeArithmeticEndpoint(svc)
+
+	// 限流方式一
+	// add ratelimit,refill every 3 second,set capacity 3
+	// 使用go-kit内置的中间件模式，添加ratelimit，每3秒设置桶的空间大小为3
+	// ratebucket := ratelimit.NewBucket(time.Second*3, 3)
+	// endpoint = kit_svc.NewTokenBucketLimitterWithJuju(ratebucket)(endpoint)
+
+	// 限流方式二
+	//add ratelimit,refill every 3 second,set capacity 3
+	// 使用go-kit内置的中间件模式，使用内置的限流方法添加ratelimit，每3秒设置桶的空间大小为3
+	ratebucket := rate.NewLimiter(rate.Every(time.Second*3), 3)
+	endpoint = kit_svc.NewTokenBucketLimitterWithBuildIn(ratebucket)(endpoint)
 
 	r := kit_svc.MakeHttpHandler(ctx, endpoint, logger)
 

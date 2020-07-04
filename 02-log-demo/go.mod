@@ -1,4 +1,4 @@
-module 01-resful-demo
+module 02-log-demo
 
 go 1.13
 
