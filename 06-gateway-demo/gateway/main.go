@@ -53,8 +53,8 @@ func main() {
 
 	//开始监听
 	go func() {
-		logger.Log("transport", "HTTP", "addr", "9090")
-		errc <- http.ListenAndServe(":9090", proxy)
+		logger.Log("transport", "HTTP", "addr", "9091")
+		errc <- http.ListenAndServe(":9091", proxy)
 	}()
 
 	// 开始运行，等待结束
@@ -72,6 +72,8 @@ func NewReverseProxy(client *api.Client, logger log.Logger) *httputil.ReversePro
 		if reqPath == "" {
 			return
 		}
+
+		fmt.Println(reqPath)
 		//按照分隔符'/'对路径进行分解，获取服务名称serviceName
 		pathArray := strings.Split(reqPath, "/")
 		serviceName := pathArray[1]
@@ -100,6 +102,6 @@ func NewReverseProxy(client *api.Client, logger log.Logger) *httputil.ReversePro
 		req.URL.Host = fmt.Sprintf("%s:%d", tgt.ServiceAddress, tgt.ServicePort)
 		req.URL.Path = "/" + destPath
 	}
-	return &httputil.ReverseProxy{Director: director}
 
+	return &httputil.ReverseProxy{Director: director}
 }
