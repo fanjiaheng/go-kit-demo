@@ -103,7 +103,7 @@ func main() {
 	healthEndpoint = kitzipkin.TraceEndpoint(zipkinTracer, "health-endpoint")(healthEndpoint)
 
 	//把算术运算Endpoint和健康检查Endpoint封装至ArithmeticEndpoints
-	endpts := ArithmeticEndpoints{
+	endpts := kit_svc.ArithmeticEndpoints{
 		ArithmeticEndpoint:  endpoint,
 		HealthCheckEndpoint: healthEndpoint,
 	}

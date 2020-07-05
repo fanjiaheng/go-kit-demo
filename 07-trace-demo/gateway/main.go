@@ -91,8 +91,8 @@ func main() {
 
 	//开始监听
 	go func() {
-		logger.Log("transport", "HTTP", "addr", "9090")
-		errc <- http.ListenAndServe(":9090", handler)
+		logger.Log("transport", "HTTP", "addr", "9091")
+		errc <- http.ListenAndServe(":9091", handler)
 	}()
 
 	// 开始运行，等待结束
