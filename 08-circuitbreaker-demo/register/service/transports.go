@@ -8,8 +8,10 @@ import (
 	"strconv"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/tracing/zipkin"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	gozipkin "github.com/openzipkin/zipkin-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -28,7 +30,7 @@ func MakeHttpHandler(ctx context.Context, endpoints ArithmeticEndpoints, zipkinT
 		kithttp.ServerErrorEncoder(kithttp.DefaultErrorEncoder),
 		zipkinServer,
 	}
-	
+
 	r.Methods("POST").Path("/calculate/{type}/{a}/{b}").Handler(kithttp.NewServer(
 		endpoints.ArithmeticEndpoint,
 		decodeArithmeticRequest,
