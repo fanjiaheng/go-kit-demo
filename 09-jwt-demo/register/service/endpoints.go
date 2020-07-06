@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/go-kit/kit/endpoint"
@@ -10,7 +11,7 @@ import (
 
 var (
 	ErrInternalFail       = errors.New("Internal assertion error")
-	ErrInvalidRequestType = errors.New("RequestType has only four type: Add,Sub,Mul,Div")
+	ErrInvalidRequestType = errors.New("RequestType has only four type: Add,Substract,Multiply,Divide")
 )
 
 // CalculateEndpoint define endpoint
@@ -45,6 +46,9 @@ func MakeArithmeticEndpoint(svc Service) endpoint.Endpoint {
 
 		a = req.A
 		b = req.B
+
+		fmt.Println("******************************")
+		fmt.Println(req.RequestType)
 
 		if strings.EqualFold(req.RequestType, "Add") {
 			res = svc.Add(a, b)

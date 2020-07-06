@@ -20,9 +20,12 @@ type Service interface {
 	// HealthCheck check service health status
 	HealthCheck() bool
 
-	// Jwt login
+	// jwt
 	Login(name, pwd string) (string, error)
 }
+
+// ServiceMiddleware define service middleware
+type ServiceMiddleware func(Service) Service
 
 //ArithmeticService implement Service interface
 type ArithmeticService struct {
@@ -57,9 +60,6 @@ func (s ArithmeticService) Divide(a, b int) (int, error) {
 func (s ArithmeticService) HealthCheck() bool {
 	return true
 }
-
-// ServiceMiddleware define service middleware
-type ServiceMiddleware func(Service) Service
 
 func (s ArithmeticService) Login(name, pwd string) (string, error) {
 	if name == "name" && pwd == "pwd" {

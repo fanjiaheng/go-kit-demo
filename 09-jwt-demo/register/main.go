@@ -21,6 +21,9 @@ import (
 	"golang.org/x/time/rate"
 
 	kit_svc "register/service"
+
+	"github.com/dgrijalva/jwt-go"
+	kitjwt "github.com/go-kit/kit/auth/jwt"
 )
 
 func main() {
@@ -91,13 +94,13 @@ func main() {
 
 	// add logging middleware to service
 	svc = kit_svc.LoggingMiddleware(logger)(svc)
-
-	// add metrics middleware to service
 	svc = kit_svc.Metrics(requestCount, requestLatency)(svc)
 
-	endpoint := kit_svc.MakeArithmeticEndpoint(svc)
-	endpoint = kit_svc.NewTokenBucketLimitterWithBuildIn(ratebucket)(endpoint)
-	endpoint = kitzipkin.TraceEndpoint(zipkinTracer, "calculate-endpoint")(endpoint)
+	calEndpoint := kit_svc.MakeArithmeticEndpoint(svc)
+	calEndpoint = kit_svc.NewTokenBucketLimitterWithBuildIn(ratebucket)(calEndpoint)
+	calEndpoint = kitzipkin.TraceEndpoint(zipkinTracer, "calculate-endpoint")(calEndpoint)
+	// 每次请求会先鉴权
+	calEndpoint = kitjwt.NewParser(kit_svc.JwtKeyFunc, jwt.SigningMethodHS256, kitjwt.StandardClaimsFactory)(calEndpoint)
 
 	//创建健康检查的Endpoint
 	healthEndpoint := kit_svc.MakeHealthCheckEndpoint(svc)
@@ -109,8 +112,8 @@ func main() {
 	authEndpoint = kit_svc.NewTokenBucketLimitterWithBuildIn(ratebucket)(authEndpoint)
 	authEndpoint = kitzipkin.TraceEndpoint(zipkinTracer, "login-endpoint")(authEndpoint)
 
-	//把算术运算Endpoint\健康检查、登录Endpoint封装至ArithmeticEndpoints
-	endpts := ArithmeticEndpoints{
+	//把算术运算Endpoint和健康检查Endpoint封装至ArithmeticEndpoints
+	endpts := kit_svc.ArithmeticEndpoints{
 		ArithmeticEndpoint:  calEndpoint,
 		HealthCheckEndpoint: healthEndpoint,
 		AuthEndpoint:        authEndpoint,

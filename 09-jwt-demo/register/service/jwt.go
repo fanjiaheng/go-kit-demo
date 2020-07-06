@@ -6,7 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-//secret key
+// 生成token时需要的密钥，这个是jwt中最重要的东西千万不能泄露!!!
 var secretKey = []byte("abcd1234!@#$")
 
 // ArithmeticCustomClaims 自定义声明
@@ -18,7 +18,7 @@ type ArithmeticCustomClaims struct {
 }
 
 // jwtKeyFunc 返回密钥
-func jwtKeyFunc(token *jwt.Token) (interface{}, error) {
+func JwtKeyFunc(token *jwt.Token) (interface{}, error) {
 	return secretKey, nil
 }
 

@@ -8,8 +8,10 @@ import (
 	"strconv"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/tracing/zipkin"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	gozipkin "github.com/openzipkin/zipkin-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -28,7 +30,7 @@ func MakeHttpHandler(ctx context.Context, endpoints ArithmeticEndpoints, zipkinT
 		kithttp.ServerErrorEncoder(kithttp.DefaultErrorEncoder),
 		zipkinServer,
 	}
-	
+
 	r.Methods("POST").Path("/calculate/{type}/{a}/{b}").Handler(kithttp.NewServer(
 		endpoints.ArithmeticEndpoint,
 		decodeArithmeticRequest,
@@ -85,15 +87,15 @@ func decodeArithmeticRequest(_ context.Context, r *http.Request) (interface{}, e
 	}, nil
 }
 
+// decodeHealthCheckRequest decode request
+func decodeHealthCheckRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	return HealthRequest{}, nil
+}
+
 // encodeArithmeticResponse encode response to return
 func encodeArithmeticResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
 	return json.NewEncoder(w).Encode(response)
-}
-
-// decodeHealthCheckRequest decode request
-func decodeHealthCheckRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	return HealthRequest{}, nil
 }
 
 // decodeLoginRequest decode request
